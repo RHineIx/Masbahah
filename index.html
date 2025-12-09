@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مسبحة</title>
+
+  <!-- Arabic fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700&family=IBM+Plex+Arabic:wght@500;600&display=swap" rel="stylesheet" />
+
+  <!-- Material Icons -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,0,0" />
+
+  <!-- PWA manifest & theme -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d1117" />
+
+  <!-- Favicon / icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+  <style>
+    :root {
+      --bg: #0d1117;
+
+      /* محسّنة (Material Friendly) */
+      --blue: #3f7df1;
+      --blue-soft: rgba(63, 125, 241, 0.18);
+
+      --green: #2fce7a;
+      --green-soft: rgba(47, 206, 122, 0.18);
+
+      --text: #f5f7fa;
+      --text-muted: #aab4c2;
+
+      --radius: 13px;
+      --shadow-soft: 0 8px 22px rgba(0,0,0,0.25);
+
+      --transition: 0.22s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Cairo", "IBM Plex Arabic", sans-serif;
+      font-weight: 600;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      transition: background var(--transition);
+    }
+
+    button {
+      outline: none;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: var(--transition);
+    }
+
+    /* ------- الألوان المتغيرة حسب الذكر ------- */
+
+    body[data-mode="ya_ghani"] {
+      --accent: var(--blue);
+      --accent-soft: var(--blue-soft);
+      --accent-btn: #326fe0;
+      --accent-btn-hover: #4a8fff;
+      --accent-border: #4a8fff;
+      --card-bg: rgba(25, 33, 49, 0.55);
+    }
+
+    body[data-mode="istighfar"] {
+      --accent: var(--green);
+      --accent-soft: var(--green-soft);
+      --accent-btn: #28b96d;
+      --accent-btn-hover: #32d481;
+      --accent-border: #32d481;
+      --card-bg: rgba(18, 36, 26, 0.55);
+    }
+
+    /* ------- Buttons & Cards ------- */
+
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      padding: 12px;
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: var(--transition);
+    }
+
+    .mode-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--text);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    }
+
+    /* كروت مع blur */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(3px);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .dhikr-text {
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .dhikr-meta {
+      margin-top: 6px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .counter-card {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      text-align: center;
+    }
+
+    /* -------- زر التصفير العلوي -------- */
+
+    .reset-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px; /* غيّرها إلى right: 12px إذا أردته يمين */
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: var(--transition);
+    }
+
+    .reset-btn:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: #ff6b6b;
+      color: #ff9d9d;
+    }
+
+    /* ------- عداد ------- */
+
+    .count-value {
+      font-size: 3.5rem;
+      font-weight: 700;
+      animation: none;
+    }
+
+    @keyframes count-bounce {
+      0% { transform: translateY(0); opacity: 1; }
+      30% { transform: translateY(-6px); opacity: 0.85; }
+      60% { transform: translateY(2px); opacity: 1; }
+      100% { transform: translateY(0); }
+    }
+
+    .remaining {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    /* ------- زر التسبيح ------- */
+
+    .tap-btn {
+      background: var(--accent-btn);
+      border: 1px solid var(--accent-border);
+      padding: 16px;
+      border-radius: var(--radius);
+      font-size: 1.2rem;
+      color: #fff;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tap-btn:hover {
+      background: var(--accent-btn-hover);
+    }
+
+    @keyframes tap-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.94); }
+      100% { transform: scale(1); }
+    }
+
+    /* ------- انتقالات بين الأذكار (رقم 15) ------- */
+
+    .dhikr-text,
+    .dhikr-meta,
+    .count-value,
+    .remaining {
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .app.switching .dhikr-text,
+    .app.switching .dhikr-meta,
+    .app.switching .count-value,
+    .app.switching .remaining {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  </style>
+</head>
+
+<body data-mode="ya_ghani">
+
+  <div class="app">
+
+    <!-- اختيار الذكر -->
+    <div class="mode-selector">
+      <div class="mode-btn active" data-mode="ya_ghani">يا غني</div>
+      <div class="mode-btn" data-mode="istighfar">أستغفر الله</div>
+    </div>
+
+    <div class="card">
+      <div class="dhikr-text" id="dhikrText">يا غني</div>
+      <div class="dhikr-meta" id="dhikrMeta">444 مرة</div>
+    </div>
+
+    <div class="card counter-card">
+
+      <!-- زر التصفير الجديد العلوي -->
+      <button class="reset-btn" id="resetBtn">
+        <span class="material-symbols-rounded" style="font-size:20px;">restart_alt</span>
+      </button>
+
+      <div class="count-value" id="countValue">0</div>
+      <div class="remaining">المتبقي: <span id="remainingValue">444</span></div>
+
+      <button class="tap-btn" id="tapBtn">
+        <span class="material-symbols-rounded">touch_app</span>
+        سَبِّح
+      </button>
+    </div>
+
+  </div>
+
+<script>
+  const MODES = {
+    ya_ghani: { label: "يا غني", target: 444 },
+    istighfar: { label: "أستغفر الله", target: 1111 }
+  };
+
+  const STORAGE_KEY = "tasbeeh_v4";
+
+  const state = {
+    currentMode: "ya_ghani",
+    counts: { ya_ghani: 0, istighfar: 0 }
+  };
+
+  const modeBtns = document.querySelectorAll(".mode-btn");
+  const dhikrText = document.getElementById("dhikrText");
+  const dhikrMeta = document.getElementById("dhikrMeta");
+  const countValue = document.getElementById("countValue");
+  const remainingValue = document.getElementById("remainingValue");
+  const tapBtn = document.getElementById("tapBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const bodyEl = document.body;
+  const appEl = document.querySelector(".app");
+
+  /* Load saved progress */
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (saved?.counts) state.counts = saved.counts;
+  } catch {}
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ counts: state.counts }));
+  }
+
+  function updateUI() {
+    const mode = MODES[state.currentMode];
+    const currentValue = state.counts[state.currentMode];
+
+    dhikrText.textContent = mode.label;
+    dhikrMeta.textContent = mode.target + " مرة";
+    countValue.textContent = currentValue;
+    remainingValue.textContent = mode.target - currentValue;
+
+    // Bounce animation للرقم بعد التحديث
+    countValue.style.animation = "none";
+    void countValue.offsetWidth;
+    countValue.style.animation = "count-bounce 0.35s ease";
+
+    // تفعيل الثيم الجديد
+    document.querySelectorAll(".mode-btn").forEach(btn =>
+      btn.classList.toggle("active", btn.dataset.mode === state.currentMode)
+    );
+
+    bodyEl.setAttribute("data-mode", state.currentMode);
+  }
+
+  function switchMode(modeKey) {
+    if (state.currentMode === modeKey) return;
+
+    // بداية الانتقال (إخفاء النصوص للأذكار الحالية)
+    appEl.classList.add("switching");
+
+    setTimeout(() => {
+      // تغيير الوضع فعليًا
+      state.currentMode = modeKey;
+      updateUI();
+
+      // إزالة حالة switching حتى تعود العناصر للظهور بالانتقال
+      appEl.classList.remove("switching");
+    }, 200); // نفس مدة الـ transition تقريبًا
+  }
+
+  function increment() {
+    const key = state.currentMode;
+    const target = MODES[key].target;
+
+    if (state.counts[key] < target) {
+      state.counts[key]++;
+      navigator.vibrate?.(35);
+
+      tapBtn.style.animation = "tap-pulse 0.25s ease";
+      setTimeout(() => (tapBtn.style.animation = "none"), 250);
+
+      save();
+      updateUI();
+    }
+  }
+
+  function reset() {
+    state.counts[state.currentMode] = 0;
+    save();
+    updateUI();
+  }
+
+  modeBtns.forEach(btn => {
+    btn.addEventListener("click", () => switchMode(btn.dataset.mode));
+  });
+
+  tapBtn.addEventListener("click", increment);
+  resetBtn.addEventListener("click", reset);
+
+  updateUI();
+
+  /* ---------- Service Worker registration (PWA) ---------- */
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("service-worker.js")
+        .catch(err => {
+          console.log("SW registration failed:", err);
+        });
+    });
+  }
+</script>
+
+</body>
+</html>
