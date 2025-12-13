@@ -1,71 +1,61 @@
-// Simple offline-first service worker for the Tasbeeh PWA
+/*
+  Service Worker for Tasbeeh App
+  Strategy: Stale-While-Revalidate for non-critical, Cache-First for assets.
+*/
 
-const CACHE_NAME = "tasbeeh-cache-v1";
-
-// Core assets to cache (add/remove if تغير أسماء الملفات)
+const CACHE_NAME = "tasbeeh-cache-v3";
 const ASSETS = [
   "./",
   "./index.html",
+  "./style.css",
+  "./app.js",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png"
 ];
 
-// Install event - pre-cache core assets
+// Install
 self.addEventListener("install", event => {
-  // Skip waiting so new SW takes control faster
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ASSETS);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
 });
 
-// Activate event - clean up old caches if any
+// Activate
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-// Fetch event - offline-first strategy
+// Fetch
 self.addEventListener("fetch", event => {
-  const request = event.request;
-
-  // For navigation requests, always try cache first
-  if (request.mode === "navigate") {
+  const req = event.request;
+  
+  // HTML: Network First, fallback to cache
+  if (req.mode === "navigate") {
     event.respondWith(
-      caches.match("./index.html").then(cached => {
-        return (
-          cached ||
-          fetch(request).catch(() => caches.match("./index.html"))
-        );
-      })
+      fetch(req)
+        .catch(() => caches.match("./index.html"))
     );
     return;
   }
 
-  // For other requests (icons, manifest, etc.)
+  // Assets: Cache First
   event.respondWith(
-    caches.match(request).then(cached => {
-      return (
-        cached ||
-        fetch(request).then(response => {
-          // Optionally cache new responses
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(request, response.clone());
-            return response;
-          });
-        }).catch(() => cached)
-      );
+    caches.match(req).then(cached => {
+      return cached || fetch(req).then(res => {
+        return caches.open(CACHE_NAME).then(cache => {
+          cache.put(req, res.clone());
+          return res;
+        });
+      });
     })
   );
 });

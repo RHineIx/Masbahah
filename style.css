@@ -1,0 +1,233 @@
+:root {
+  --bg: #0d1117;
+  --text: #f5f7fa;
+  --text-muted: #aab4c2;
+  --radius: 16px;
+  --shadow-soft: 0 10px 30px rgba(0,0,0,0.3);
+  --transition: 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  
+  /* Default Colors (Will be updated by JS) */
+  --accent: #3f7df1; 
+  --accent-soft: rgba(63, 125, 241, 0.15);
+  --accent-btn: #3f7df1;
+  --card-bg: rgba(22, 27, 34, 0.8);
+}
+
+/* --- Theme Colors Palette --- */
+body[data-theme="blue"] { --accent: #3f7df1; --accent-btn: #2b6bdd; --accent-soft: rgba(63, 125, 241, 0.15); }
+body[data-theme="green"] { --accent: #2fce7a; --accent-btn: #21b365; --accent-soft: rgba(47, 206, 122, 0.15); }
+body[data-theme="amber"] { --accent: #f59e0b; --accent-btn: #d97706; --accent-soft: rgba(245, 158, 11, 0.15); }
+body[data-theme="gold"] { --accent: #ffd700; --accent-btn: #e6c200; --accent-soft: rgba(255, 215, 0, 0.15); --text-on-accent: #000; }
+body[data-theme="purple"] { --accent: #a855f7; --accent-btn: #9333ea; --accent-soft: rgba(168, 85, 247, 0.15); }
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Cairo", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  transition: background var(--transition);
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1;
+}
+
+/* --- Modes Scroll List --- */
+.modes-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.modes-container::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 20px;
+  background: linear-gradient(to right, var(--bg), transparent);
+  pointer-events: none;
+}
+
+.modes-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  scrollbar-width: none;
+}
+.modes-scroll::-webkit-scrollbar { display: none; }
+
+.mode-chip {
+  flex: 0 0 auto;
+  padding: 10px 18px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 50px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.mode-chip.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px var(--accent-soft);
+  font-weight: 700;
+}
+body[data-theme="gold"] .mode-chip.active { color: #000; }
+
+/* --- Cards --- */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  transition: var(--transition);
+}
+
+.dhikr-text { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
+.dhikr-purpose { font-size: 0.95rem; color: var(--accent); margin-bottom: 8px; font-weight: 600; min-height: 1.4em; }
+.dhikr-meta { font-size: 0.9rem; color: var(--text-muted); }
+
+/* --- Counter Section --- */
+.counter-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.reset-btn {
+  position: absolute;
+  top: 15px; left: 15px;
+  background: rgba(255,255,255,0.05);
+  border: none;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.reset-btn:hover { background: rgba(255,80,80,0.2); color: #ff5050; }
+
+.count-value { font-size: 4.5rem; font-weight: 700; line-height: 1.1; font-family: 'IBM Plex Arabic', sans-serif; }
+.remaining { color: var(--text-muted); font-size: 1rem; }
+
+/* --- Tap Button --- */
+.tap-btn {
+  background: var(--accent-btn);
+  color: #fff;
+  border: none;
+  padding: 18px;
+  border-radius: var(--radius);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s;
+  box-shadow: 0 4px 15px var(--accent-soft);
+}
+body[data-theme="gold"] .tap-btn { color: #000; }
+.tap-btn:active { transform: scale(0.96); }
+
+/* --- Custom Modal --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-card {
+  background: #1c212b;
+  width: 100%;
+  max-width: 320px;
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.active .modal-card {
+  transform: translateY(0) scale(1);
+}
+
+.modal-icon {
+  width: 50px; height: 50px;
+  background: rgba(255,80,80,0.15);
+  color: #ff5050;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+.modal-icon span { font-size: 28px; }
+
+.modal-card h3 { margin-bottom: 8px; font-size: 1.25rem; }
+.modal-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.5; }
+
+.modal-actions { display: flex; gap: 12px; }
+
+.modal-actions button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-cancel { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+.btn-confirm { background: #ff5050; color: #fff; }
+
+/* --- Animations --- */
+@keyframes bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.animate-bounce { animation: bounce 0.2s ease; }
+
+.switching .dhikr-text, 
+.switching .count-value { opacity: 0; transform: translateY(5px); }
+.dhikr-text, .count-value { transition: opacity 0.2s, transform 0.2s; }

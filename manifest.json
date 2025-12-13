@@ -1,6 +1,7 @@
 {
   "name": "مسبحة",
   "short_name": "مسبحة",
+  "description": "تطبيق متقدم للأذكار والورد اليومي",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "./index.html",
